@@ -12,6 +12,7 @@ function App() {
     const [tasks, setTasks] = useState([]);
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
+    const [editingId, setEditingId] = useState(null);
     const [filter, setFilter] = useState('all');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -33,28 +34,57 @@ function App() {
     }, []);
 
     async function handleSubmit(event) {
-        event.preventDefault();
+    event.preventDefault();
 
-        if (!title.trim()) {
-            setError('Введи назву завдання');
-            return;
-        }
+    if (!title.trim()) {
+        setError('Введи назву завдання');
+        return;
+    }
 
-        try {
-            setError('');
+    try {
+        setError('');
 
+        if (editingId !== null) {
+            const updated = await updateTask(editingId, {
+                title: title.trim(),
+                description: description.trim(),
+                completed: tasks.find(task => task.id === editingId).completed
+            });
+
+            setTasks(current =>
+                current.map(task => task.id === updated.id ? updated : task)
+            );
+        } else {
             const task = await createTask({
                 title: title.trim(),
                 description: description.trim()
             });
 
             setTasks(current => [task, ...current]);
-            setTitle('');
-            setDescription('');
-        } catch (err) {
-            setError(err.message);
         }
+
+        setTitle('');
+        setDescription('');
+        setEditingId(null);
+    } catch (err) {
+        setError(err.message);
     }
+}
+
+function handleEdit(task) {
+    setEditingId(task.id);
+    setTitle(task.title);
+    setDescription(task.description || '');
+    setError('');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function cancelEdit() {
+    setEditingId(null);
+    setTitle('');
+    setDescription('');
+    setError('');
+}
 
     async function handleToggle(task) {
         try {
@@ -108,7 +138,7 @@ function App() {
             </header>
 
             <section className="panel">
-                <h2>Нове завдання</h2>
+                <h2>{editingId !== null ? 'Редагувати завдання' : 'Нове завдання'}</h2>
 
                 <form onSubmit={handleSubmit} className="task-form">
                     <input
@@ -125,7 +155,17 @@ function App() {
                         rows="3"
                     />
 
-                    <button type="submit">+ Додати завдання</button>
+                <div className="form-actions">
+            <button type="submit">
+                {editingId !== null ? 'Зберегти зміни' : '+ Додати завдання'}
+            </button>
+
+            {editingId !== null && (
+                <button type="button" className="cancel-button" onClick={cancelEdit}>
+                    Скасувати
+                </button>
+            )}
+        </div>
                 </form>
             </section>
 
@@ -157,6 +197,7 @@ function App() {
                                 task={task}
                                 onToggle={handleToggle}
                                 onDelete={handleDelete}
+                                onEdit={handleEdit}
                             />
                         ))}
                     </div>

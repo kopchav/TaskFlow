@@ -1,4 +1,4 @@
-function TaskItem({ task, onToggle, onDelete }) {
+function TaskItem({ task, onToggle, onDelete, onEdit }) {
     return (
         <article className={`task-item ${task.completed ? 'completed' : ''}`}>
             <div className="task-content">
@@ -11,7 +11,15 @@ function TaskItem({ task, onToggle, onDelete }) {
                 <button onClick={() => onToggle(task)}>
                     {task.completed ? 'Повернути' : 'Виконати'}
                 </button>
-                <button className="delete-button" onClick={() => onDelete(task.id)}>
+
+                <button onClick={() => onEdit(task)}>
+                    Редагувати
+                </button>
+
+                <button
+                    className="delete-button"
+                    onClick={() => onDelete(task.id)}
+                >
                     Видалити
                 </button>
             </div>

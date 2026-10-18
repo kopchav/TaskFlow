@@ -315,3 +315,27 @@ h2 {
         width: 100%;
     }
 }
+    .form-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .form-actions .cancel-button {
+        background: #ececf4;
+        color: #45495d;
+    }
+
+    .form-actions .cancel-button:hover {
+        background: #dedfea;
+    }
+
+    @media (max-width: 600px) {
+        .form-actions {
+            width: 100%;
+        }
+
+        .form-actions button {
+            flex: 1;
+        }
+    }
